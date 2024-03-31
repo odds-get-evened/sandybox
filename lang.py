@@ -32,10 +32,48 @@ def normalize_str(s: str) -> list[int]:
 	s_ls = normalize_arr(s_ls, -1, 1)
 	
 	return s_ls
+	
+def plots_2d(arr):
+	new_arr = []
+	
+	for i in range(len(arr)):
+		plot = None
+		
+		if i*2 < len(arr):
+			plot = [arr[i*2]]
+			
+		if i*2+1 < len(arr):
+			plot.append(arr[i*2+1])
+			
+		if plot is not None:
+			new_arr.append(plot)
+	
+	return new_arr
+	
+def plots_3d(arr):
+	new_arr = []
+	
+	for i in range(len(arr)):
+		plot = None
+		
+		if i*3 < len(arr):
+			plot = [arr[i*3]]
+			
+		if i*3+1 < len(arr):
+			plot.append(arr[i*3+1])
+			
+		if i*3+2 < len(arr):
+			plot.append(arr[i*3+2])
+		
+		if plot is not None:
+			new_arr.append(plot)
+	
+	return new_arr
 
 def main():
 	s = "You don’t have to be into the wilderness to enjoy camping. Tom doesn't want to make a big deal out of it. Our competitors don't normally ask us for advice, but when an airline leader reached out, we couldn't ignore it."
-	print(normalize_str(s))
+	print(plots_3d(normalize_str(s)))
+	print(plots_3d([_ for _ in range(10)]))
 	
 	
 
