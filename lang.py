@@ -105,11 +105,7 @@ def plots_3d(arr):
 
 
 def main():
-    # s = "You don’t have to be into the wilderness to enjoy camping. Tom doesn't want to make a big deal out of it. Our competitors don't normally ask us for advice, but when an airline leader reached out, we couldn't ignore it."
-    s = secrets.choice(phrases['long_sentences'])
-    plot = plots_3d(normalize_str(s))
-    print(plot)
-    # print(plots_3d(normalize_str(s)))
+    pass
 
 
 if __name__ == "__main__":
