@@ -22,14 +22,10 @@ def preprocess_for_3d(s: str):
 
 def main():
     q = QuantumRealm()
-    # q.add_plot([(1, 0, 1), (1, 2, 2), (4, 1, 1), (2, 1, 0)])
-    # sent = secrets.choice(phrases['long_sentences'])
 
-    # plot_sent = preprocess_for_3d(sent)
     color_bunch = [color.green, color.red, color.blue, color.white, color.orange, color.pink, color.magenta]
     [q.add_plot(preprocess_for_3d(s), the_color=secrets.choice(color_bunch)) for s in phrases['long_sentences']]
 
-    # q.add_plot(plot_sent)
     q.app.run()
 
 

@@ -1,13 +1,8 @@
 from pathlib import Path
 
 from ursina import Entity, Ursina, EditorCamera, DirectionalLight, Mesh, Vec3, color, AmbientLight, load_texture, \
-    Texture
+    Texture, Terrain, Sky, scene
 from ursina.shaders import lit_with_shadows_shader
-
-
-class MakeSpace():
-    def __init__(self):
-        self.floor = Entity(model='plane', position=Vec3(0, -1, 0), scale=(1, 1, 1), color=color.gray, collider='box', texture=Texture(Path("assets", "Bolted_Wooden_Planks", "Bolted_Wooden_Planks_DIFF.jpg")))
 
 
 class QuantumRealm(Entity):
@@ -29,7 +24,6 @@ class QuantumRealm(Entity):
         self.directional_light = DirectionalLight(parent=self.pivot, y=2, z=3, shadows=True, rotation=Vec3(45, -45, 45))
         self.ambient_light = AmbientLight(parent=self.pivot, color=color.rgba(100, 100, 100, 0.1))
 
-        MakeSpace()
         EditorCamera()
 
     def add_plot(self, plot: list[tuple], the_color=color.green):

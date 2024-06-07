@@ -5,9 +5,6 @@ import nltk
 from nltk.corpus import stopwords
 from hashies import big_end_int_64
 
-
-# import numpy as np
-
 phrases = {
     'long_sentences': [
         "As the sun began to set over the horizon, painting the sky in shades of orange and pink, a gentle breeze rustled the leaves of the ancient oak tree that stood alone in the vast, open field, where generations of families had come to picnic and enjoy the serene beauty of nature.",
@@ -23,7 +20,15 @@ phrases = {
     ]
 }
 
-def normalize_arr(arr, t_min, t_max):
+
+def normalize_arr(arr: list, t_min, t_max) -> list:
+    '''
+    bring an array of number values within a bounds constraint
+    :param arr:
+    :param t_min:
+    :param t_max:
+    :return: a normalized list
+    '''
     norm_arr = []
 
     diff = t_max - t_min
@@ -37,7 +42,7 @@ def normalize_arr(arr, t_min, t_max):
     return norm_arr
 
 
-def normalize_str(s: str) -> list[int]:
+def normalize_str(s: str, t_min=-1, t_max=1) -> list:
     # all to lowercase
     s = s.lower()
     # remove numbers
@@ -54,7 +59,7 @@ def normalize_str(s: str) -> list[int]:
     # remove stopwords and convert all strings to integer hash
     s_ls = [big_end_int_64(w.encode('utf8')) for w in s.split(' ') if w not in stopw]
     # normalize
-    s_ls = normalize_arr(s_ls, -1, 1)
+    s_ls = normalize_arr(s_ls, t_min, t_max)
 
     return s_ls
 
@@ -80,7 +85,7 @@ def plots_2d(arr):
 def plots_3d(arr):
     new_arr = []
 
-    # pad list to be divisible by 3
+    # pad list length to be divisible by 3
     mod = len(arr) % 3
     if mod > 0:
         pad_size = 3 - mod
@@ -105,7 +110,10 @@ def plots_3d(arr):
 
 
 def main():
-    pass
+    plot = plots_3d(normalize_str("Hi there. Where are you headed? is this real life?", t_min=0, t_max=9))
+    plot2 = plots_3d(normalize_str("Hi there. What is your name? is this real life", t_min=0, t_max=9))
+    print(plot)
+    print(plot2)
 
 
 if __name__ == "__main__":
