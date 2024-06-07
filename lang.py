@@ -21,14 +21,14 @@ phrases = {
 }
 
 
-def normalize_arr(arr: list, t_min, t_max) -> list:
-    '''
+def normalize_arr(arr: list, t_min=-1, t_max=1) -> list:
+    """
     bring an array of number values within a bounds constraint
     :param arr:
     :param t_min:
     :param t_max:
     :return: a normalized list
-    '''
+    """
     norm_arr = []
 
     diff = t_max - t_min
@@ -43,6 +43,14 @@ def normalize_arr(arr: list, t_min, t_max) -> list:
 
 
 def normalize_str(s: str, t_min=-1, t_max=1) -> list:
+    """
+    using a natural language model (NLTK), converting text
+    into a list of normalized number values
+    :param s:
+    :param t_min:
+    :param t_max:
+    :return: a normalized list
+    """
     # all to lowercase
     s = s.lower()
     # remove numbers
@@ -64,7 +72,12 @@ def normalize_str(s: str, t_min=-1, t_max=1) -> list:
     return s_ls
 
 
-def plots_2d(arr):
+def plots_2d(arr: list) -> list:
+    """
+    convert a 1 dimensional list to a 2 dimensional one, for plotting 2D coordinates
+    :param arr:
+    :return: a list of 2D coordinates
+    """
     new_arr = []
 
     for i in range(len(arr)):
@@ -82,7 +95,12 @@ def plots_2d(arr):
     return new_arr
 
 
-def plots_3d(arr):
+def plots_3d(arr: list) -> list:
+    """
+    converts a 1-dimensional list to a 2-dimensional one, for plotting 3D coordinates
+    :param arr:
+    :return: a list of 3D coordinates
+    """
     new_arr = []
 
     # pad list length to be divisible by 3
