@@ -128,8 +128,8 @@ def plots_3d(arr: list) -> list:
 
 
 def main():
-    plot = plots_3d(normalize_str("Hi there. Where are you headed? is this real life?", t_min=0, t_max=9))
-    plot2 = plots_3d(normalize_str("Hi there. What is your name? is this real life", t_min=0, t_max=9))
+    plot = plots_3d(normalize_str(phrases['long_sentences'][0], t_min=0, t_max=9))
+    plot2 = plots_3d(normalize_str(phrases['long_sentences'][1], t_min=-1, t_max=1))
     print(plot)
     print(plot2)
 
