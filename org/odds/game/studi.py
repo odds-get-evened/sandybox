@@ -1,4 +1,4 @@
-from ursina import Ursina, Entity, DirectionalLight, Vec3, Vec2, EditorCamera, Keys, held_keys, color, camera, mouse, \
+from ursina import Ursina, Entity, DirectionalLight, Vec3, Vec2, held_keys, color, camera, mouse, \
     clamp
 
 
@@ -34,7 +34,6 @@ class ThirdPersonController(Entity):
         ).normalized()
 
         self.position += direction * 0.06 * self.movement_speed
-
 
 
 class StudiGame(Entity):

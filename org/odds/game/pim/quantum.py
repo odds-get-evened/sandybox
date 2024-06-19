@@ -1,7 +1,4 @@
-from pathlib import Path
-
-from ursina import Entity, Ursina, EditorCamera, DirectionalLight, Mesh, Vec3, color, AmbientLight, load_texture, \
-    Texture, Terrain, Sky, scene
+from ursina import Entity, Ursina, EditorCamera, DirectionalLight, Mesh, Vec3, color, AmbientLight
 from ursina.shaders import lit_with_shadows_shader
 
 
