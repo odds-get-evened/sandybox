@@ -1,17 +1,8 @@
 import asyncio
-import base64
 import math
-import os
 import random
 import time
 from io import BytesIO
-
-from cryptography.fernet import Fernet
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives._serialization import Encoding, PublicFormat, KeySerializationEncryption, \
-    BestAvailableEncryption, PrivateFormat
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 
 def sigmoid(x):
@@ -63,6 +54,7 @@ class Heartbeat:
 
         # 1 is up/right and 0 is down/left
         direction = 1 if start >= 0 else 0
+        self.position = start
         while True:
             adjusted_threshold = threshold + self.increment
 
