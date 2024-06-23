@@ -1,7 +1,7 @@
 import asyncio
 import math
 import random
-import time
+import sys
 from io import BytesIO
 
 
@@ -38,48 +38,57 @@ class Heartbeat:
     """
 
     def __init__(self, increment=0.01):
+        """
+        how much to increment the position
+        :param increment:
+        """
+        # 1 is up/right and 0 is down/left
+        self.direction = 0
         self.position = 0
         self.increment = increment
+
         asyncio.run(self.start())
 
     async def start(self):
-        random.seed(time.time())
-
-        start_time = time.time()
-
         start = random.uniform(-1, 1)
         threshold = random.uniform(0, 0.9)
-        print(f"random: {start}")
+        print(f"start: {start}")
         print(f"threshold: {threshold}")
 
-        # 1 is up/right and 0 is down/left
-        direction = 1 if start >= 0 else 0
+        self.direction = 1 if start >= 0 else 0
         self.position = start
+
+        low_end = start - threshold
+        high_end = start + threshold
+        print(f"low {low_end} - high {high_end}", end="\n\n")
+        print("#################################", end="\n\n")
+
+        # offset thresholds so that direction is changed before hitting them
+        low_end = low_end if low_end > -1 else -1 + self.increment
+        high_end = high_end if high_end < 1 else 1 - self.increment
+
         while True:
-            adjusted_threshold = threshold + self.increment
-
-            print(f"direction {'up' if direction == 1 else 'down'} @ {self.position}")
-
-            low_end = start - adjusted_threshold
-            low_end = low_end if low_end > -1 else -1
-            high_end = start + adjusted_threshold
-            high_end = high_end if high_end < 1 else 1
-
-            if self.position < low_end:
-                direction = 1
+            # positioning
+            if self.position <= low_end:
+                self.direction = 1
 
             if self.position >= high_end:
-                direction = 0
+                self.direction = 0
 
-            if direction is 1:
-                self.position += self.increment
+            # direction based on position
+            if self.direction == 1:
+                self.position += self.optimized_increment()
             else:
-                self.position -= self.increment
+                self.position -= self.optimized_increment()
 
-            await asyncio.sleep(2)
+            print(f"direction {'up' if self.direction == 1 else 'down'} @ {self.position} w/pace {self.increment}")
 
-        span = time.time() - start_time
-        print(f"timespan: {span}")
+            await asyncio.sleep(0.5)
+
+    def optimized_increment(self):
+        # delta = abs(self.position, self.)
+
+        return self.increment
 
 
 class Feeder:
@@ -120,7 +129,10 @@ class Feeder:
 
 
 def do_heartbeat():
-    hb = Heartbeat(increment=0.1)
+    try:
+        Heartbeat(increment=0.1)
+    except KeyboardInterrupt:
+        sys.exit(0)
 
 
 def do_enginio():
