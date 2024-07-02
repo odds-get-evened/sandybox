@@ -4,6 +4,8 @@ import random
 import sys
 from io import BytesIO
 
+from org.odds.game.math.easing import out_quint
+
 
 def sigmoid(x):
     return 1.0 / (1 + (math.e ** -x))
@@ -43,6 +45,8 @@ class Heartbeat:
         :param increment:
         """
         # 1 is up/right and 0 is down/left
+        self.low_end = -1
+        self.high_end = 1
         self.direction = 0
         self.position = 0
         self.increment = increment
@@ -64,8 +68,8 @@ class Heartbeat:
         print("#################################", end="\n\n")
 
         # offset thresholds so that direction is changed before hitting them
-        low_end = low_end if low_end > -1 else -1 + self.increment
-        high_end = high_end if high_end < 1 else 1 - self.increment
+        self.low_end = low_end if low_end > -1 else -1 + self.increment
+        self.high_end = high_end if high_end < 1 else 1 - self.increment
 
         while True:
             # positioning
@@ -83,10 +87,12 @@ class Heartbeat:
 
             print(f"direction {'up' if self.direction == 1 else 'down'} @ {self.position} w/pace {self.increment}")
 
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(2)
 
     def optimized_increment(self):
-        # delta = abs(self.position, self.)
+        # determine if we are moving down or up and get delta from low or high, dependent on what we're nearing
+        delta = self.position - self.low_end if self.direction == 0 else self.high_end - self.position
+        
 
         return self.increment
 
