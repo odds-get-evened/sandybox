@@ -1,0 +1,19 @@
+@startuml gate
+!theme spacelab
+title gate
+
+start
+
+:user;
+
+split
+
+group #LightGreen protected area
+
+:key signature;
+
+end
+
+end group
+
+@enduml
