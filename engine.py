@@ -4,8 +4,6 @@ import random
 import sys
 from io import BytesIO
 
-from org.odds.game.math.easing import out_quint
-
 
 def sigmoid(x):
     return 1.0 / (1 + (math.e ** -x))
