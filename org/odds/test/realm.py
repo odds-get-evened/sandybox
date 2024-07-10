@@ -1,10 +1,11 @@
+import json
 import random
 import string
 
-from pgpy import PGPKey, PGPUID
+from pgpy import PGPKey, PGPUID, PGPKeyring, PGPMessage
 from pgpy.constants import PubKeyAlgorithm, KeyFlags, HashAlgorithm, SymmetricKeyAlgorithm, CompressionAlgorithm
 
-from org.odds.test.user import RealmUser
+from org.odds.util import crc32
 
 DEFAULT_USAGE = {KeyFlags.EncryptCommunications, KeyFlags.EncryptStorage, KeyFlags.Sign}
 DEFAULT_HASHES = [HashAlgorithm.SHA256, HashAlgorithm.SHA512]
@@ -29,7 +30,8 @@ def create_key(uid: str, key_size=2048) -> PGPKey:
     return k
 
 
-class Realm(RealmUser):
+class Realm:
     def __init__(self):
-        rand_id = ''.join(random.SystemRandom().choices(string.digits + string.ascii_letters, k=8))
-        super().__init__(uid='realm_' + rand_id)
+        self.id = 'realm_' + crc32(random.SystemRandom().randbytes(256)).decode()
+        init_key = create_key(self.id)
+        self.key_ring = PGPKeyring(init_key)
