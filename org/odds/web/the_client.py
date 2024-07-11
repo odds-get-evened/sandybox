@@ -1,47 +1,36 @@
 import socket
 
-from org.odds.web.the_server import MY_HOST, MY_PORT
+from org.odds.web.the_server import DEFAULT_HOST, DEFAULT_PORT, BUF_LEN
 
 
-def run_client():
-    # create a socket
-    cli = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+class TheClient:
+    def __init__(self, host: str, port: int):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.sock:
+            self.sock.connect((host, port))
 
-    # connect to server
-    cli.connect((MY_HOST, MY_PORT))
+            while True:
+                # input message and send to server
+                req = input(">> ")
+                self.sock.send(req.encode()[:BUF_LEN])
 
-    try:
-        # get input message from user and send to the server
-        msg = input("enter message: ")
+                # receive message from server
+                res = self.sock.recv(1024)
+                print(f"{res.decode()}")
 
-        while True:
-            cli.send(msg.encode()[:1024])
+                if res.decode().__eq__('DISCONNECT'):
+                    print("disconnected from server")
+                    break
 
-            # receive message from server
-            res = cli.recv(1024)
-            res = res.decode()
+                if res.decode().startswith('SHA256'):
+                    continue
 
-            '''
-            if server sent us "closed" in the payload, we break out of
-            this loop and close the socket
-            '''
-            if res.__eq__('closed'):
-                break
 
-            print(f"{res}")
-
-            # get input message from user and send to the server
-            msg = input("enter message: ")
-    except Exception as e:
-        print(f"error: {e}")
-    finally:
-        # close the client socket (connection to the server)
-        cli.close()
-        print(f"connection closed")
+def the_client(host: str, port: int):
+    client = TheClient(host, port)
 
 
 def main():
-    run_client()
+    the_client(DEFAULT_HOST, DEFAULT_PORT)
 
 
 if __name__ == "__main__":
