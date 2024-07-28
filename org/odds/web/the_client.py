@@ -11,7 +11,7 @@ class TheClient:
             while True:
                 # input message and send to server
                 req = input(">> ")
-                self.sock.send(req.encode()[:BUF_LEN])
+                self.sock.send(req.strip().encode()[:BUF_LEN])
 
                 # receive message from server
                 res = self.sock.recv(1024)

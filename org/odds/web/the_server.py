@@ -39,12 +39,12 @@ class TheServer:
 
     def handle_client(self, cid: str, sock: socket.socket, addr: tuple):
         try:
-            self.connections.append(ClientHandle(cid, sock, addr))
+            # self.connections.append(ClientHandle(cid, sock, addr))
 
             while True:
                 # receive and print client messages
                 req = sock.recv(BUF_LEN)
-                print(f"client: {req.decode()}")
+                print(f"client: {req.decode()}\n")
 
                 '''
                 process input from clients after this line.
@@ -53,7 +53,7 @@ class TheServer:
                 `quit`, and the server will confirm with `DISCONNECT`,
                 `DISCONNECT` triggers the client to disconnect
                 '''
-                res = ""
+                res = "<< "
                 if req.decode().__eq__('quit'):
                     res = 'disconnect'.upper()
                     # sock.send('disconnect'.upper().encode())
@@ -64,12 +64,13 @@ class TheServer:
                         res = 'SHA256'.upper() + " " + sha256(' '.join(cmd[1:]).encode()).hexdigest()
 
                 # convert and send response to client
-                sock.send(("server <<: " + res).encode())
+                sock.send(res.encode())
         except Exception as e:
-            print(f"client {addr[0]}:{addr[1]} handling error {e}")
-        finally:
+            # print(f"client {addr[0]}:{addr[1]} handling error {e}")
             sock.close()
+        finally:
             print(f"connection to {addr[0]}:{addr[1]} closed")
+            sock.close()
 
 
 def the_server():
