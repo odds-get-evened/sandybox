@@ -1,4 +1,6 @@
+import os.path
 import re
+from pathlib import Path
 
 import nltk
 from nltk.corpus import stopwords
@@ -127,11 +129,28 @@ def plots_3d(arr: list) -> list:
     return new_arr
 
 
+def do_lexical_analysis(s: str):
+    s = s.strip().lower()
+    # remove digits
+    s = re.sub(r'\d+', '', s)
+    # remove all but words and spaces
+    s = re.sub(r'[^\w\s]', '', s)
+
+
+
+
+
 def main():
+    with open(Path(os.path.expanduser('~'), ".databox", "texts", "nature-rwemerson.txt"), 'rt', encoding='utf-8') as f:
+        words_and_stuff = f.read()
+
+        do_lexical_analysis(words_and_stuff)
+    '''
     plot = plots_3d(normalize_str(phrases['long_sentences'][0], t_min=0, t_max=9))
     plot2 = plots_3d(normalize_str(phrases['long_sentences'][1], t_min=-1, t_max=1))
     print(plot)
     print(plot2)
+    '''
 
 
 if __name__ == "__main__":
