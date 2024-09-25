@@ -1,11 +1,17 @@
 import os.path
 import re
+import sys
+from enum import Enum
 from pathlib import Path
 
 import nltk
+from nltk import word_tokenize, pos_tag
 from nltk.corpus import stopwords
 
 from hashies import big_end_int_64
+
+# update mine with a local path
+nltk.data.path.append('C:\\Users\\chris\\AppData\\Local\\databox\\nltk')
 
 phrases = {
     'long_sentences': [
@@ -136,9 +142,7 @@ def do_lexical_analysis(s: str):
     # remove all but words and spaces
     s = re.sub(r'[^\w\s]', '', s)
 
-
-
-
+    
 
 def main():
     with open(Path(os.path.expanduser('~'), ".databox", "texts", "nature-rwemerson.txt"), 'rt', encoding='utf-8') as f:
