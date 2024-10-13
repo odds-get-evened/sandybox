@@ -3,7 +3,8 @@ import secrets
 
 from ursina import Vec3, color
 
-from lang import plots_3d, normalize_str, phrases
+from org.odds.lang.lang import phrases
+from org.odds.lang.lexical import normalize_str, plots_3d
 from org.odds.game.pim.quantum import QuantumRealm
 
 

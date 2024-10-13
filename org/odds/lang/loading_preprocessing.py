@@ -8,7 +8,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from pandas import DataFrame
 
-from lang.feature_extraction import feature_extraction
+from org.odds.lang.feature_extraction import feature_extraction
 
 """
 Step 1

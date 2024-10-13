@@ -1,14 +1,10 @@
 import os.path
-import re
-import sys
-from enum import Enum
 from pathlib import Path
 
 import nltk
-from nltk import word_tokenize, pos_tag
-from nltk.corpus import stopwords
+import numpy as np
 
-from hashies import big_end_int_64
+from org.odds.lang.lexical import normalize_str, plots_3d, LexicalAnalyzer
 
 # update mine with a local path
 nltk.data.path.append('C:\\Users\\chris\\AppData\\Local\\databox\\nltk')
@@ -29,132 +25,31 @@ phrases = {
 }
 
 
-def normalize_arr(arr: list, t_min=-1, t_max=1) -> list:
-    """
-    bring an array of number values within a bounds constraint
-    :param arr:
-    :param t_min:
-    :param t_max:
-    :return: a normalized list
-    """
-    norm_arr = []
+def process_lexicon(a: list[list[str]]):
+    p = []
 
-    diff = t_max - t_min
-    diff_arr = max(arr) - min(arr)
+    for sent in a:
+        normed = normalize_str(' '.join(sent), t_min=-1, t_max=1)
+        qub = plots_3d(normed)
+        p.append(qub)
 
-    for i in arr:
-        temp = (((i - min(arr)) * diff) / diff_arr) + t_min
-
-        norm_arr.append(temp)
-
-    return norm_arr
-
-
-def normalize_str(s: str, t_min=-1, t_max=1) -> list:
-    """
-    using a natural language model (NLTK), converting text
-    into a list of normalized number values
-    :param s:
-    :param t_min:
-    :param t_max:
-    :return: a normalized list
-    """
-    # all to lowercase
-    s = s.lower()
-    # remove numbers
-    s = re.sub(r'\d+', '', s)
-    # remove everything except words and spaces
-    s = re.sub(r'[^\w\s]', '', s)
-
-    try:
-        stopw = set(stopwords.words('english'))
-    except LookupError:
-        nltk.download('stopwords', quiet=True)
-        stopw = set(stopwords.words('english'))
-
-    # remove stopwords and convert all strings to integer hash
-    s_ls = [big_end_int_64(w.encode('utf8')) for w in s.split(' ') if w not in stopw]
-    # normalize
-    s_ls = normalize_arr(s_ls, t_min, t_max)
-
-    return s_ls
-
-
-def plots_2d(arr: list) -> list:
-    """
-    convert a 1 dimensional list to a 2 dimensional one, for plotting 2D coordinates
-    :param arr:
-    :return: a list of 2D coordinates
-    """
-    new_arr = []
-
-    for i in range(len(arr)):
-        plot = None
-
-        if i * 2 < len(arr):
-            plot = [arr[i * 2]]
-
-        if i * 2 + 1 < len(arr):
-            plot.append(arr[i * 2 + 1])
-
-        if plot is not None:
-            new_arr.append(plot)
-
-    return new_arr
-
-
-def plots_3d(arr: list) -> list:
-    """
-    converts a 1-dimensional list to a 2-dimensional one, for plotting 3D coordinates
-    :param arr:
-    :return: a list of 3D coordinates
-    """
-    new_arr = []
-
-    # pad list length to be divisible by 3
-    mod = len(arr) % 3
-    if mod > 0:
-        pad_size = 3 - mod
-        arr += [0] * pad_size
-
-    for i in range(len(arr)):
-        plot = None
-
-        if i * 3 < len(arr):
-            plot = [arr[i * 3]]
-
-        if i * 3 + 1 < len(arr):
-            plot.append(arr[i * 3 + 1])
-
-        if i * 3 + 2 < len(arr):
-            plot.append(arr[i * 3 + 2])
-
-        if plot is not None:
-            new_arr.append(plot)
-
-    return new_arr
+    return p
 
 
 def do_lexical_analysis(s: str):
     s = s.strip().lower()
-    # remove digits
-    s = re.sub(r'\d+', '', s)
-    # remove all but words and spaces
-    s = re.sub(r'[^\w\s]', '', s)
 
-    
+    proc = LexicalAnalyzer(s, max_workers=8).process()
+    plots = process_lexicon(proc)
+    [print(len(plot)) for plot in plots]
+    plots_1d = np.array(plots).flatten().tolist()
+
 
 def main():
     with open(Path(os.path.expanduser('~'), ".databox", "texts", "nature-rwemerson.txt"), 'rt', encoding='utf-8') as f:
         words_and_stuff = f.read()
 
-        do_lexical_analysis(words_and_stuff)
-    '''
-    plot = plots_3d(normalize_str(phrases['long_sentences'][0], t_min=0, t_max=9))
-    plot2 = plots_3d(normalize_str(phrases['long_sentences'][1], t_min=-1, t_max=1))
-    print(plot)
-    print(plot2)
-    '''
+    do_lexical_analysis(words_and_stuff)
 
 
 if __name__ == "__main__":
