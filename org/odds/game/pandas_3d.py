@@ -1,100 +1,145 @@
+import math
+
 from direct.actor.Actor import Actor
 from direct.showbase.ShowBase import ShowBase
-from panda3d.core import Vec3, CollisionTraverser, CollisionHandlerPusher, CollisionNode, CollisionSphere, \
-    WindowProperties
+from direct.task.Task import Task
+from panda3d.core import WindowProperties, CollisionTraverser, CollisionHandlerPusher, CollisionNode, CollisionSphere, \
+    Vec3
 
 
-class ThirdPersonGame(ShowBase):
+class SomeGame(ShowBase):
     def __init__(self):
+        self.pusher = None
+        self.mouse_sensitivity = 0.2
+
         ShowBase.__init__(self)
 
-        # hide mouse cursor
+        # hide the mouse cursor and lock it to center of the window
         props = WindowProperties()
-        props.set_cursor_hidden(True)
-        self.win.request_properties(props)
-
-        self.pusher = None
-        self.c_trav = None
-        self.look_at_offset = None
-        self.camera_offset = None
+        props.setCursorHidden(True)
+        props.setMouseMode(WindowProperties.M_relative)  # mouse locking mode
+        self.win.requestProperties(props)
 
         # load environment
-        self.enviro = self.loader.load_model("models/environment")
-        self.enviro.reparent_to(self.render)
-        self.enviro.set_scale(0.25, 0.25, 0.25)
-        self.enviro.set_pos(-8, 42, 0)
+        self.enviro = self.loader.loadModel("models/environment")
+        self.enviro.reparentTo(self.render)
+        self.enviro.setScale(0.25, 0.25, 0.25)
+        self.enviro.setPos(-8, 42, 0)
 
-        # load player
-        self.character = Actor("models/panda-model", {"walk": "models/panda-walk4"})
-        self.character.reparent_to(self.render)
-        self.character.set_scale(0.005, (0.005, 0.005, 0.005))
-        self.character.set_pos(0, 10, 0)
+        # load player (panda)
+        self.player = Actor("models/panda-model", {'walk': 'models/panda-walk4'})
+        self.player.reparentTo(self.render)
+        self.player.setScale(0.005, 0.005, 0.005)
+        self.player.setPos(0, 10, 0)
 
-        # collision setup
+        # disable default mouse control
+        self.disableMouse()
+
+        # initialize camera properties
+        self.cam_distance = 30
+        self.cam_pitch = 10
+        self.cam_yaw = 0
+
+        # flag for movement direction
+        self.is_moving_fwd = False
+        self.is_moving_bwd = False
+
+        # collision detection and controls
         self.setup_collisions()
-
-        # camera setup
-        self.setup_camera()
-
-        # key controls
         self.setup_controls()
 
-        # task to update player and camera
-        self.task_mgr.add(self.update, "update")
-
-    def setup_camera(self):
-        """ setup 3rd-person camera """
-        self.camera_offset = Vec3(0, -3, 10)
-        self.look_at_offset = Vec3(0, 0, 5)
-        self.disable_mouse()  # disables default camera control
-        self.camera.set_pos(self.character.get_pos() + self.camera_offset)
-        self.camera.look_at(self.character.get_pos() + self.look_at_offset)
+        # task to update player, camera, and handle mouse input
+        self.taskMgr.add(self.update, 'update')
 
     def setup_collisions(self):
-        """ setup player collisions """
-        self.c_trav = CollisionTraverser()
+        self.cTrav = CollisionTraverser()
         self.pusher = CollisionHandlerPusher()
 
-        collision_node = CollisionNode('player')
-        collision_node.add_solid(CollisionSphere(0, 0, 1, 1))
-        collision_nodepath = self.character.attach_new_node(collision_node)
-        collision_nodepath.show()  # shows the collision sphere around player
+        c_node = CollisionNode('player')
+        c_node.addSolid(CollisionSphere(0, 0, 1, 1))
+        c_nodepath = self.player.attachNewNode(c_node)
+        c_nodepath.show()  # shows tehe collision path
 
-    def update(self, task):
-        """ update the player and camera positions """
-        # camera follows the player
-        self.camera.set_pos(self.character.get_pos() + self.camera_offset)
-        self.camera.look_at(self.character.get_pos() + self.look_at_offset)
-
-        return task.cont
+        self.pusher.addCollider(c_nodepath, self.player)
+        self.cTrav.addCollider(c_nodepath, self.pusher)
 
     def setup_controls(self):
-        """ setup keyboard controls for the player """
-        self.accept("arrow_up", self.move_forward)
-        self.accept("arrow_down", self.move_backward)
-        self.accept("arrow_left", self.turn_left)
-        self.accept("arrow_right", self.turn_right)
-        self.accept("arrow_up-up", self.stop)
+        self.accept('w', self.start_fwd)
+        self.accept('s', self.start_bwd)
 
-    def move_forward(self):
-        self.character.loop("walk")
-        self.character.set_y(self.character, 1.0)
+        self.accept('w-up', self.stop_mv)
+        self.accept('s-up', self.stop_mv)
 
-    def move_backward(self):
-        self.character.set_y(self.character, -1.0)
+    def start_fwd(self):
+        self.is_moving_fwd = True
+        self.player.loop('walk')
 
-    def turn_left(self):
-        self.character.set_h(self.character.get_h() + 10)
+    def start_bwd(self):
+        self.is_moving_bwd = True
+        self.player.loop('walk')
 
-    def turn_right(self):
-        self.character.set_h(self.character.get_h() - 10)
+    def stop_mv(self):
+        self.is_moving_fwd = False
+        self.is_moving_bwd = False
+        self.player.stop()
 
-    def stop(self):
-        self.character.stop()
+    def cam_fwd_vector(self):
+        cam_rad = math.radians(self.cam_yaw)
+
+        return Vec3(math.sin(cam_rad), math.cos(cam_rad), 0)
+
+    def update(self, task):
+        # handle mouse input for camera rotation
+        if self.mouseWatcherNode.hasMouse():
+            # mouse deltas (relative to previous position
+            md = self.win.getPointer(0)
+            mouse_x = md.getX() - self.win.getProperties().getXSize() / 2
+            mouse_y = md.getY() - self.win.getProperties().getYSize() / 2
+
+            # recenter the mouse to middle of screen
+            self.win.movePointer(0, self.win.getProperties().getXSize() // 2, self.win.getProperties().getYSize() // 2)
+
+            # adjust yaw and pitch based on mouse movement
+            self.cam_yaw -= mouse_x * self.mouse_sensitivity
+            self.cam_pitch -= mouse_x * self.mouse_sensitivity
+
+        # update camera position
+        self.update_cam_pos()
+
+        # camera follows player
+        self.camera.lookAt(self.player.getPos() + Vec3(0, 0, 5))
+
+        # handle player movement
+        if self.is_moving_fwd:
+            self.mv_player(1)
+        elif self.is_moving_bwd:
+            self.mv_player(-1)
+
+        return Task.cont
+
+    def mv_player(self, direction):
+        fwd_vec = self.cam_fwd_vector() * direction
+        self.player.setPos(self.player.getPos() + fwd_vec * 0.2)
+
+        # rotate the player to face the camera's direction
+        heading = self.cam_yaw
+        self.player.setH(heading)
+
+    def update_cam_pos(self):
+        heading_rad = math.radians(self.cam_yaw)
+        pitch_rad = math.radians(self.cam_pitch)
+
+        # calculate the camera's position relative to player
+        cam_x = math.sin(heading_rad) * self.cam_distance * math.cos(pitch_rad)
+        cam_y = math.cos(heading_rad) * self.cam_distance * math.cos(pitch_rad)
+        cam_z = math.sin(pitch_rad) * self.cam_distance
+
+        # set the camera position
+        self.camera.setPos(self.player.getPos() + Vec3(cam_x, cam_y, cam_z))
 
 
 def main():
-    game = ThirdPersonGame()
+    game = SomeGame()
     game.run()
 
 

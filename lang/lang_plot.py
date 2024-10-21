@@ -14,7 +14,7 @@ def preprocess_for_3d(s: str):
     normalized = [math.floor(w * 10) for w in normalized]
 
     plotted = plots_3d(normalized)
-    # need to treat plots, so that each coordinate becomes a 3D vector
+    # need to treat plots, so that each coordinate becomes a 3D vectorwad
     # map each coordinate to Vec3
     plotted = [Vec3(tuple(x)) for x in plotted]
 

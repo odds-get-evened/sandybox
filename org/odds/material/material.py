@@ -5,7 +5,7 @@ from org.odds.material.network import NodeNetwork
 
 class Material:
     def __init__(self):
-        self.network = NodeNetwork(num_nodes=1000)
+        self.network = NodeNetwork(num_nodes=1000, trainer=False)
         self.network.start()
 
 
