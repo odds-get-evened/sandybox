@@ -4,7 +4,6 @@ from itertools import zip_longest
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC

@@ -1,5 +1,3 @@
-import os.path
-
 from org.odds.material.network import NodeNetwork
 
 

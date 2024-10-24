@@ -3,12 +3,11 @@ import os
 import pickle
 import struct
 import time
-import unittest
 from pathlib import Path
 
 import numpy as np
 
-from org.odds import rand
+from odds import rand
 from org.odds.material.modeling import BaseModel
 from org.odds.util import crc32
 
