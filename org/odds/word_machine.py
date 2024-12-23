@@ -3,11 +3,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.spatial import ConvexHull
-from sklearn.cluster import KMeans, DBSCAN
-from sklearn.linear_model import LinearRegression
-from sklearn.neighbors import KDTree
-from verble.lexicon import LexicalAnalyzer, normalize_arr, normalize_str, plots_2d, plots_3d
+from sklearn.cluster import KMeans
+from verble.lexicon import LexicalAnalyzer, normalize_str, plots_3d
 
 PHRASES = [
     "The ship ran before a fresh North wind till we had reached the sea that lies between Crete and Libya; there, "
@@ -114,11 +111,18 @@ def word_mechanism(s: str):
     plt.show()
 
 
+def read_txt_in_chunks(p: Path, chunk_size=1024):
+    with open(p, 'rt', encoding='utf8') as f:
+        while True:
+            chunk = f.read(1024)
+            if not chunk:
+                break
+            return chunk
+
+
 def main():
     myths_norse_path = Path("C:\\Users\\chris\\.databox\\texts\\myths_of_the_norsemen.txt")
-    with open(myths_norse_path, 'rt', encoding='utf8') as f:
-        txt = f.read()
-    word_mechanism(str(txt))
+    word_mechanism(str(read_txt_in_chunks(myths_norse_path)))
 
 
 if __name__ == "__main__":
