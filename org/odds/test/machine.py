@@ -1,29 +1,35 @@
 import math
 import random
 import sys
-import time
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def ease_in_out(x):
-    """Easing method t oslow down near bounds (-1, 1)"""
+    """Easing method to slow down near bounds (a, b)"""
     return 1 - (math.cos(x * math.pi) / 2 + 0.5)
 
 
+
+class Machine:
+    UPPER: float = 1.0
+    LOWER: float = -1.0
+
+    def __init__(self, init_speed=0.01):
+        self.speed = init_speed
+        print(f"starting speed: {self.speed}")
+        # position
+        self.pos = random.uniform(self.LOWER, self.UPPER)
+        print(f"starting position: {self.pos}")
+
+    def run(self):
+        pass
+
+
 def main():
-    low = -1.0
-    high = 1.0
-
-    position = -1.0
-    direction = 1  # 1 for forward, and -1 backward
-    speed = 0.01  # base increment step
-
-    position = random.uniform(low, high)
-    direction = random.choice([-1, 1])
-
-    while True:
-        position += direction * speed
-        print(position)
-        time.sleep(1)
+    mac = Machine()
+    mac.run()
 
 
 if __name__ == "__main__":

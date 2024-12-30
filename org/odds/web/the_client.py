@@ -15,14 +15,18 @@ class TheClient:
 
                 # receive message from server
                 res = self.sock.recv(1024)
-                print(f"{res.decode()}")
+                # print(f"{res.decode()}")
 
                 if res.decode().__eq__('DISCONNECT'):
                     print("disconnected from server")
                     break
 
                 if res.decode().startswith('SHA256'):
-                    continue
+                    print(res.decode())
+
+                if res.decode().startswith('KEY'):
+                    s = res.decode()
+                    print(f"fingerprint: {s.replace('KEY', '')}")
 
 
 def the_client(host: str, port: int):

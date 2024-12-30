@@ -1,7 +1,11 @@
 import socket
 import time
+from concurrent.futures import ThreadPoolExecutor
 from hashlib import sha256
 from threading import Thread
+
+from pgpy import PGPUID, PGPKey
+from pgpy.constants import PubKeyAlgorithm, KeyFlags, HashAlgorithm, CompressionAlgorithm, SymmetricKeyAlgorithm
 
 from org.odds.util import crc32
 
@@ -17,10 +21,35 @@ class ClientHandle:
         self.address = addr
 
 
+class PGPStuff:
+    KEY_USAGE = {KeyFlags.EncryptCommunications, KeyFlags.EncryptStorage}
+    HASH_FLAGS = [HashAlgorithm.SHA256, HashAlgorithm.SHA512]
+    CIPHER_FLAGS = [SymmetricKeyAlgorithm.AES256]
+    COMPRESSION_FLAGS = [
+        CompressionAlgorithm.ZLIB, CompressionAlgorithm.BZ2,
+        CompressionAlgorithm.ZIP, CompressionAlgorithm.Uncompressed
+    ]
+
+    @staticmethod
+    def gen_key(id, email="", comment=""):
+        key = PGPKey.new(PubKeyAlgorithm.RSAEncryptOrSign, 4096)
+        uid = PGPUID.new(id, email=email, comment=comment)
+        key.add_uid(
+            uid, usage=PGPStuff.KEY_USAGE,
+            hashes=PGPStuff.HASH_FLAGS,
+            ciphers=PGPStuff.CIPHER_FLAGS,
+            compression=PGPStuff.COMPRESSION_FLAGS
+        )
+
+        return key
+
+
 class TheServer:
     def __init__(self, host: str, port: int = 8888):
         self.host_spec: tuple = (host, port)
         self.connections: list[ClientHandle] = []
+
+        self.executor = ThreadPoolExecutor(max_workers=1)
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.serv:
             self.serv.bind(self.host_spec)
@@ -61,7 +90,20 @@ class TheServer:
                 if req.decode().startswith('hash'):
                     cmd = req.decode().split(' ')
                     if len(cmd) >= 2:
-                        res = 'SHA256'.upper() + " " + sha256(' '.join(cmd[1:]).encode()).hexdigest()
+                        res = 'sha256'.upper() + " " + sha256(' '.join(cmd[1:]).encode()).hexdigest()
+                    else:
+                        res = 'noop'.upper()
+
+                if req.decode().startswith('gen'):
+                    cmd = req.decode().split(' ')
+                    if len(cmd) >= 4:
+                        id = cmd[1].strip()
+                        email = cmd[2].strip()
+                        comment = ' '.join(cmd[3:]).strip()
+                        # generate keys
+                        futr = self.executor.submit(PGPStuff.gen_key, id, email=email, comment=comment)
+                        key: PGPKey = futr.result()
+                        res = f'key {' '.join(key.fingerprint[i: i + 4] for i in range(0, len(key.fingerprint), 4))}'.upper()
 
                 # convert and send response to client
                 sock.send(res.encode())
