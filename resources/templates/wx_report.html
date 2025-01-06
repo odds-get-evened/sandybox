@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}weather report{% endblock %}
+{% block content %}
+<h1>Weather for {{ q }}</h1>
+<div class="container" id="wxFrame">
+    <div class="row">
+        <div class="col">time:</div>
+        <div class="col">{{ forecast.datetime }}</div>
+    </div>
+    <div class="row">
+        <div class="col">station (URL):</div>
+        <div class="col"><a href="{{ forecast.station_url }}">station info</a></div>
+    </div>
+    <div class="row">
+        <div class="col">METAR:</div>
+        <div class="col">{{ forecast.raw_message }}</div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="module" src="{{ url_for('static', path='/wx_report.js') }}"></script>
+{% endblock %}

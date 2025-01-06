@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+<h1>no home</h1>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <a href="{{ url_for('endpoint_wx_report', q=12180) }}" class="btn btn-primary">wx</a>
+        </div>
+    </div>
+</div>
+<div id="appRoot" class=""></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', path='/webapp.js') }}" type="module"></script>
+{% endblock %}
