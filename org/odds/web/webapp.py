@@ -82,11 +82,13 @@ def deep_dict_merge(d1: dict, d2: dict):
 
 
 def forecast_to_csv(data, p: Path):
+    print(f"converting dataframe to CSV")
     l_df = pd.DataFrame(data)
+    print(l_df)
     l_df.to_csv(p)
 
 
-def revise_obsv(obs):
+def revise_obsv(obs, save=False):
     record = [
         {
             'timestamp': iso_to_epoch(props['timestamp'].strip()),
@@ -113,39 +115,42 @@ def revise_obsv(obs):
         for props in [x['properties']]
     ]
 
-    record_df_p = Path(
-        os.path.expanduser('~'), '.databox', 'noaa', 'wx', 'forecasts',
-        f"forecast_frame_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"
-    )
-    forecast_to_csv(record, record_df_p)
+    # save data snapshot to CSV
+    if save:
+        record_df_p = Path(
+            os.path.expanduser('~'), '.databox', 'noaa', 'wx', 'forecasts',
+            f"forecast_frame_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv"
+        )
+        forecast_to_csv(record, record_df_p)
 
     return record
 
 
-async def wx_run(loc: str):
+async def wx_run(loc: str, save=False):
     print(f"location: {loc}")
     coords = await async_get_lat_lng(loc.strip())
     print(f"coordinates: {coords.__str__()}")
     grid = await async_get_grid(coords[0], coords[1])
     print(f"grid: {grid.__str__()}")
     stations = await async_get_stations(grid)
-    # [print(stn) for stn in stations]
     observation = await async_get_observation(stations[0]['properties']['stationIdentifier'])
-    observation = revise_obsv(observation)
+    observation = revise_obsv(observation, save=True)
 
-    '''
-    obs_json = json.dumps(observation)
-    json_p = Path(
-        os.path.expanduser('~'), '.databox', 'noaa',
-        'wx', 'forecasts',
-        f"forecast_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json"
-    )
-    if not json_p.exists():
-        json_p.parent.mkdir(parents=True, exist_ok=True)
-        json_p.touch(exist_ok=True)
-    with open(json_p, 'w') as f:
-        f.write(obs_json)
-    '''
+    # save data revision to JSON file
+    if save:
+        obs_json = json.dumps(observation)
+        json_p = Path(
+            os.path.expanduser('~'), '.databox', 'noaa',
+            'wx', 'forecasts',
+            f"forecast_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json"
+        )
+        if not json_p.exists():
+            json_p.parent.mkdir(parents=True, exist_ok=True)
+            json_p.touch(exist_ok=True)
+        with open(json_p, 'w') as f:
+            print(f"writing data revision to JSON: {json_p.__str__()}")
+            f.write(obs_json)
+    
     return observation
 
 
