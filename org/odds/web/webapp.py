@@ -156,7 +156,7 @@ async def wx_run(loc: str, save=False):
 
 def main():
     asyncio.run(wx_run('12180'))
-
+    # asyncio.run(wx_train())
 
 if __name__ == "__main__":
     main()
